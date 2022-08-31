@@ -10,16 +10,8 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async()=>{
     const posts = await getPostListings();
-    // const postsString = JSON.stringify({posts});
-
     return json<LoaderData>({posts});
-    /*
-    return new Response (postsString, {
-        headers: {
-            'Content-Type': "application/json",
 
-        }
-    }); */
 }
 
 export default function PostRoute(){
@@ -28,6 +20,9 @@ export default function PostRoute(){
     return(
         <main>
             <h1>Posts</h1>
+            <Link to="admin" className="text-red-600 underline">
+                Admin
+            </Link>
             <ul>
                 {posts.map((post) => (
                     <li key={post.slug}>
