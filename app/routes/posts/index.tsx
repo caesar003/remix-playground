@@ -21,6 +21,7 @@ export const loader: LoaderFunction = async()=>{
         }
     }); */
 }
+
 export default function PostRoute(){
     const {posts} = useLoaderData();
     
