@@ -1,7 +1,7 @@
-import { Form, useActionData, useTransition } from "@remix-run/react";
+import { Form, useActionData, useLoaderData, useTransition } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { redirect, json} from "@remix-run/node";
-import { createPost } from "~/models/post.server";
+import { createPost, getPost } from "~/models/post.server";
 import invariant from "tiny-invariant";
 import { requireAdminUser } from "~/session.server";
 
@@ -10,7 +10,10 @@ export const loader: LoaderFunction = async ({request, params}) => {
     if(params.slug === 'new') {
         return json({});
     }
-    return json({post: null});
+
+    const post = await getPost(params.slug);
+
+    return json({post});
 }
 
 type ActionData = {
@@ -56,18 +59,19 @@ const inputClassName = `w-full rounded border border-gray-500 px-2 py-1 text-lg`
 
 export default function NewPostRoute(){
 
+    const data = useLoaderData();
     const errors = useActionData() as ActionData;
     const transition = useTransition();
     const isCreating = Boolean(transition.submission);
 
     return (
-        <Form method="post">
+        <Form method="post" key={data.post?.slug ?? 'new'}>
             <p>
                 <label>
                     Post Title: {errors?.title? (
                         <em className="text-red-600">{errors.title}</em>
                     ) : null}
-                    <input type="text" name="title" className={inputClassName} />
+                    <input type="text" name="title" className={inputClassName} defaultValue={data.post?.title} />
                 </label>
             </p>
             <p>
@@ -75,7 +79,7 @@ export default function NewPostRoute(){
                     Post Slug: {errors?.slug? (
                         <em className="text-red-600">{errors.slug}</em>
                     ) : null}
-                    <input type="text" name="slug" className={inputClassName} />
+                    <input type="text" name="slug" className={inputClassName} defaultValue={data.post?.slug} />
                 </label>
             </p>
             <p>
@@ -89,6 +93,7 @@ export default function NewPostRoute(){
                     rows={20}
                     name="markdown"
                     className={`${inputClassName} font-mono`}
+                    defaultValue={data.post?.markdown}
                 />
             </p>
 
